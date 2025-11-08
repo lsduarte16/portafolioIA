@@ -1,0 +1,24 @@
+{
+  "name": "chilexpress-ia-dashboard",
+  "version": "1.0.0",
+  "description": "Dashboard interactivo para la cartera de proyectos de IA de Chilexpress.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "dashboard",
+    "ia",
+    "chilexpress",
+    "portfolio"
+  ],
+  "author": "Asistente IA Gemini",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/openai": "^1.0.0-beta.12",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "papaparse": "^5.4.1"
+  }
+}

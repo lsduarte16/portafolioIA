@@ -1,0 +1,95 @@
+ID	Gerencia	Iniciativa
+1	Personas	Actualización de precios inmobiliario uf/m2
+2	Personas	Benchmarking de programas para usar en el área
+3	Personas	Agente de atención terceros (agentes externos y licitados) foco en personas
+4	Personas	Generación de contenido (interno y externo) con mayor eficiencia y efectividad -> (sostenibilidad-reportes-información corporativa)
+5	Personas	Diversificación de voceros-identidades para comunicados
+6	Personas	Respuestas a elementos técnicos-sostenibilidad a preguntas
+7	Personas	Consolidación/sistematización/monitoreo Huella de carbono
+8	Personas	monitorear tendencias y temáticas externas
+9	Personas	Agente apoyo reclutamiento
+10	Personas	Automatizar procesos equipo de Personas-información (hh+)
+11	Personas	Integración de info de colaboradores (gustos-insight-perfiles-predictor)
+12	Personas	Paneles y métricas con Agente IA -> con foco a personas
+13	Personas	Descripciones de cargo (agente para la gestión)->preparación y gobierno
+14	Personas	Actualización de política de compensaciones-competitiva/mercados/distorsiones/necesidades
+15	Operaciones	Rezago de Planta​
+16	Operaciones	Ruteo Optimo (primera y ultima)​
+17	Operaciones	Control Asistencia Diario en Planta​
+18	Operaciones	Proyección de demanda – ruta troncal​
+19	Operaciones	Mantenimiento preventivo​
+20	Operaciones	Control de proceso y desviaciones-​
+21	Operaciones	Predecir demanda de clientes por tipo carga​
+22	Operaciones	Errores y controles de pago a proveedor de transporte​
+23	Operaciones	Asignación y reasignación de folios​
+24	Operaciones	Alerta por capacidad de vehículos​
+25	Operaciones	Alerta cumplimiento prex​
+26	Operaciones	Cuadratura q piezas online vs retiro​
+27	Operaciones	Pruebas de entrega y retiro​
+28	Operaciones	Automatizar Relacionamiento con prospectos de flota​
+29	Operaciones	Detección hurtos y robos en planta​
+30	Operaciones	Visualización avance troncales​
+31	Operaciones	Control de piezas que viajan en camión​
+32	Operaciones	Inventario Planta de piezas por cortes horarios y etapas de proceso​
+33	Operaciones	Cuadratura de Retiros​
+34	Operaciones	Primera milla, asignación de folios en base a criterios​
+35	Operaciones	FTE en recepción y transferencias-recepciones masivas​
+36	Operaciones	Carga al sorter-tasa de error aprox 10%--supervisor de inducción​
+37	Operaciones	Ordenamiento de Carga en furgón​
+38	Operaciones	Salud de sistemas-alertas de C.Op.​
+39	Operaciones	Auditor de Procesos Críticos​
+40	Operaciones	Cuadratura piezas valoradas-monitor y control.​
+41	Marketing	Aut. Predicción clientes churn​
+42	Marketing	Pricing-conocimiento elasticidades (modelo)​
+43	Marketing	Agente proactivo seguimiento encomienda​
+44	Marketing	Predicción de abandono​
+45	Marketing	Modelo de Fidelización y + venta (patrones)​
+46	Marketing	Voz del cliente​
+47	Marketing	Gestión de contractibilidad​
+48	Marketing	Diseño Journey fidelización ​
+49	Marketing	Control Imagen sucursales​
+50	Marketing	Coach de ventas​
+51	Marketing	Canal de formación/capacitación​
+52	Marketing	Asistente de venta (al cliente)​
+53	Marketing	Predicción de quiebres canales digitales​
+54	Marketing	Optimización ux por patrón​
+55	Marketing	Pruebas de QA Automatizadas​
+56	Marketing	Monitoreo de métricas de canales digitales​
+57	Marketing	Hiperpersonalización de contenidos​
+58	Marketing	Coach para el cliente – canal digital​
+59	Marketing	Monitoreo de red / alertas preventivas​
+60	Marketing	Coach para prospectos​
+61	Marketing	Agente gestión de red​
+62	Marketing	Asistente planificador de ruta según criterios específicos​
+63	Marketing	Monitoreo comportamiento sucursales​
+64	Marketing	Agente Validador de cuadraturas en liquidaciones​
+65	Marketing	Automatización de permisología para apertura de sucursales​
+66	Marketing	Agente optimizador de cobertura territorial​
+67	Marketing	Monetizar productos de IA para emprendedores​
+68	Marketing	MetaHumano​
+69	Marketing	Asistente de diseño de productos con IA​
+70	Comercial	Asistente continuo de desempeño del equipo comercial​
+71	Comercial	Asistente de análisis de revenue​
+72	Comercial	Gestión de fuga​
+73	Comercial	Gestión de prospectos​
+74	Comercial	Emilia Empresas​
+75	Comercial	Gestión de retiros​
+76	Comercial	Voz del cliente​
+77	Comercial	Emilia Personas 2.0​
+78	Comercial	Gestión de pagos para envíos internacionales​
+79	Comercial	Coach de atención comercial​
+80	Comercial	Asistente para forecasting de ventas​
+81	Comercial	Asistente de control operacional​
+82	Comercial	Gestión de reclamos SERNAC​
+83	Comercial	Gestión de contactabilidad con el cliente​
+84	Finanzas	Control de caja en oficina (proactividad del control cajas )
+85	Finanzas	Automatización o predicción del flujo de caja (plan de ventas)
+86	Finanzas	Automatización de procesos SAP
+87	Finanzas	Automatización de la depuración de la base de proveedores
+88	Finanzas	Automatización de conciliaciones bancarias
+89	Finanzas	 automatización del ingreso de las facturas recibidas
+90	Finanzas	CRM – SAP para pagos de indemnizaciones
+91	Finanzas	Automatización de aumento de crédito
+92	Finanzas	Control del descuento aplicado a clientes – Carga de listas de precios
+93	Finanzas	Panel de cuentas contables
+94	Finanzas	Saldo, cargos, abonos, control y notificación a eventos.

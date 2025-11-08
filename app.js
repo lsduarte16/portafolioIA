@@ -1,0 +1,547 @@
+document.addEventListener('DOMContentLoaded', () => {
+    let allProjects = [];
+    let macroProjects = [];
+    let selectedProjects = new Set();
+    let currentView = 'dashboard';
+    let currentFilter = '';
+    let activeKeyword = null; // Nuevo: para el filtro de keyword
+    let projectModal = null; // para la instancia del modal
+    let uniqueTags = []; // Para los filtros dinámicos
+
+    const mainContent = document.getElementById('main-content');
+    const macroNav = document.getElementById('macro-nav');
+
+    // --- Inicialización ---
+    async function init() {
+        const response = await fetch('proyectos_dashboard.csv');
+        const csvText = await response.text();
+        
+        Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+                allProjects = results.data.map(enrichProjectData); // Usar la función de enriquecimiento
+                macroProjects = [...new Set(allProjects.map(p => p.Macroproyecto_Revisado).filter(Boolean))];
+                
+                // Generar lista de tags únicos para los filtros
+                const allTags = allProjects.flatMap(p => p.tags);
+                uniqueTags = [...new Set(allTags)].sort();
+
+                setupNavigation();
+                console.log('Inicializando modal:', document.getElementById('project-modal')); // Log de depuración
+                projectModal = new bootstrap.Modal(document.getElementById('project-modal')); // Inicializar el modal
+                render();
+            }
+        });
+
+        // Configurar listeners globales
+        document.addEventListener('DOMContentLoaded', () => {
+            const aiSubmitModal = document.getElementById('ai-submit-modal');
+            const aiPromptModal = document.getElementById('ai-prompt-modal');
+
+            console.log('Elementos encontrados en DOMContentLoaded:', {
+                aiSubmitModal: !!aiSubmitModal,
+                aiPromptModal: !!aiPromptModal
+            });
+
+            if (aiSubmitModal) {
+                aiSubmitModal.addEventListener('click', handleAISubmit);
+            }
+
+            if (aiPromptModal) {
+                aiPromptModal.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        handleAISubmit();
+                    }
+                });
+            }
+        });
+
+        document.getElementById('menu-toggle').addEventListener('click', () => {
+            document.getElementById('wrapper').classList.toggle('toggled');
+        });
+    }
+    
+    // --- Navegación y Renderizado ---
+    function setupNavigation() {
+        macroProjects.forEach(mp => {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.className = 'list-group-item list-group-item-action bg-dark';
+            link.dataset.view = mp;
+            link.innerHTML = `<i class="bi bi-folder"></i> ${mp}`;
+            macroNav.appendChild(link);
+        });
+
+        macroNav.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = e.target.closest('a');
+            if (target) {
+                document.querySelector('#macro-nav .active').classList.remove('active');
+                target.classList.add('active');
+                currentView = target.dataset.view;
+                currentFilter = currentView === 'dashboard' ? '' : currentView;
+                render();
+            }
+        });
+    }
+
+    function render() {
+        let projectsToDisplay = currentFilter 
+            ? allProjects.filter(p => p.Macroproyecto_Revisado === currentFilter)
+            : [...allProjects];
+
+        if (activeKeyword) {
+            projectsToDisplay = projectsToDisplay.filter(p => 
+                p.tags && p.tags.includes(activeKeyword)
+            );
+        }
+        
+        mainContent.innerHTML = `
+            <div class="mb-4">
+                <h1 class="h2 text-warning">${currentView === 'dashboard' ? 'Listado General' : currentView}</h1>
+                <p class="text-muted">Análisis y simulación de la cartera de proyectos.</p>
+            </div>
+            ${createKPIs(projectsToDisplay)}
+            <div class="row">
+                <div class="col-lg-12">
+                    ${createKeywordFilters()}
+                    ${createProjectsTable(projectsToDisplay)}
+                </div>
+            </div>
+        `;
+        addEventListeners();
+        updateSelectedProjectsPreview();
+    }
+
+    // --- Creación de Componentes HTML ---
+    function createKPIs(projects) {
+        const totalProjects = projects.length;
+        const selectedCount = projects.filter(p => selectedProjects.has(p.ID)).length;
+        
+        const { totalIngresos, totalAhorros } = calculateBenefits(projects.filter(p => selectedProjects.has(p.ID)));
+
+        return `
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card kpi-card text-center p-3">
+                        <h6 class="text-muted">Proyectos Seleccionados</h6>
+                        <h2 class="display-4 font-weight-bold">${selectedCount} / ${totalProjects}</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card kpi-card text-center p-3">
+                        <h6 class="text-muted">Ingresos Potenciales</h6>
+                        <h2 class="display-4 font-weight-bold">$${totalIngresos.toLocaleString()}</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card kpi-card text-center p-3">
+                        <h6 class="text-muted">Ahorros Potenciales</h6>
+                        <h2 class="display-4 font-weight-bold">$${totalAhorros.toLocaleString()}</h2>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    function createProjectsTable(projects) {
+         return `
+            <div class="card">
+                <div class="card-header">
+                    Lista de Iniciativas
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="table-responsive flex-grow-1" style="overflow-y: auto;">
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Sel.</th>
+                                    <th>ID</th>
+                                    <th>Iniciativa</th>
+                                    <th>Gerencia</th>
+                                    <th>Beneficio Estimado</th>
+                                    <th>Tipología IA</th>
+                                    <th>Aporte</th>
+                                </tr>
+                            </thead>
+                            <tbody id="projects-table-body">
+                                ${projects.map(p => `
+                                    <tr data-id="${p.ID}">
+                                        <td><input type="checkbox" class="form-check-input" data-id="${p.ID}" ${selectedProjects.has(p.ID) ? 'checked' : ''}></td>
+                                        <td>${p.ID}</td>
+                                        <td><a href="#" class="text-white project-link" data-id="${p.ID}">${p.Iniciativa}</a></td>
+                                        <td>${p.Gerencia}</td>
+                                        <td>${p.Beneficios_Estimados}</td>
+                                        <td>
+                                            ${p.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('') || ''}
+                                        </td>
+                                        <td><span class="badge ${getBadgeClass(p.Aporte_Estrategico)}">${p.Aporte_Estrategico}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    function createKeywordFilters() {
+        return `
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Filtrar por Tipología IA</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        ${uniqueTags.map(k => `
+                            <button class="btn btn-sm ${activeKeyword === k ? 'btn-warning' : 'btn-outline-secondary'}" data-keyword="${k}">
+                                ${k}
+                            </button>
+                        `).join('')}
+                        ${activeKeyword ? '<button class="btn btn-sm btn-outline-danger" id="clear-keyword-filter">Limpiar</button>' : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // --- Lógica y Utilidades ---
+
+    function parseAIResponseToCards(data, responseArea) {
+        if (data.response) { // Maneja el caso de selección de proyectos (modo antiguo)
+            const projectIds = data.response.split(',').map(id => id.trim());
+            selectedProjects.clear();
+            projectIds.forEach(id => {
+                if(allProjects.some(p => p.ID === id)) {
+                    selectedProjects.add(id);
+                }
+            });
+            responseArea.innerHTML = `<p class="text-success">Simulación completada. Se han seleccionado ${projectIds.length} proyectos según tu criterio.</p>`;
+            render();
+            return;
+        }
+
+        if (!data.recommendations || data.recommendations.length === 0) {
+            responseArea.innerHTML = `<p class="text-white small">${data.executiveSummary || "No se encontraron recomendaciones específicas."}</p>`;
+            return;
+        }
+
+        // Renderizar la estructura para el nuevo análisis estratégico
+        const summaryHTML = data.executiveSummary ? `
+            <div class="fade-in-block" id="summary-block">
+                <h6 class="text-warning">Resumen Ejecutivo</h6>
+                <p class="text-white-50">${data.executiveSummary}</p>
+            </div>` : '';
+
+        const recommendationsHTML = data.recommendations.map((rec, index) => {
+            const project = allProjects.find(p => p.ID === rec.id);
+            if (!project) return '';
+            return `
+                <div class="ai-response-card mb-3 fade-in-block" id="rec-block-${index}">
+                    <div class="card-header">
+                         <a href="#" class="text-warning project-link" data-id="${project.ID}"><strong>ID ${project.ID}:</strong> ${project.Iniciativa}</a>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text small text-white-50">${rec.justification}</p>
+                    </div>
+                </div>`;
+        }).join('');
+
+        const synergiesHTML = data.synergies ? `
+            <div class="mt-4 fade-in-block" id="synergies-block">
+                <h6 class="text-warning">Sinergias</h6>
+                <p class="text-white-50">${data.synergies}</p>
+            </div>` : '';
+
+        const risksHTML = data.risks ? `
+            <div class="mt-4 fade-in-block" id="risks-block">
+                <h6 class="text-warning">Riesgos Potenciales</h6>
+                <p class="text-white-50">${data.risks}</p>
+            </div>` : '';
+
+        responseArea.innerHTML = `
+            ${summaryHTML}
+            <h6 class="text-warning mt-4 fade-in-block" id="rec-title-block">Proyectos Recomendados</h6>
+            ${recommendationsHTML}
+            ${synergiesHTML}
+            ${risksHTML}
+        `;
+
+        // Animar la aparición en cascada
+        const blocks = [
+            '#summary-block', '#rec-title-block', 
+            ...data.recommendations.map((_, i) => `#rec-block-${i}`),
+            '#synergies-block', '#risks-block'
+        ];
+
+        blocks.forEach((selector, index) => {
+            const element = responseArea.querySelector(selector);
+            if (element) {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, index * 200); // 200ms de retraso entre cada bloque
+            }
+        });
+    }
+
+    function updateSelectedProjectsPreview() {
+        const previewArea = document.getElementById('selected-projects-preview');
+        const selected = allProjects.filter(p => selectedProjects.has(p.ID));
+
+        if (selected.length === 0) {
+            previewArea.innerHTML = '<p class="text-muted small">Ningún proyecto seleccionado aún.</p>';
+            return;
+        }
+
+        previewArea.innerHTML = `
+            <ul class="list-unstyled">
+                ${selected.map(p => `<li><i class="bi bi-box-seam me-2"></i>${p.ID}: ${p.Iniciativa}</li>`).join('')}
+            </ul>
+        `;
+    }
+
+    function enrichProjectData(project) {
+        const iniciativa = project.Iniciativa.toLowerCase();
+        const keywords = project.Keywords.toLowerCase();
+        const tags = new Set();
+
+        // Lógica de etiquetado
+        if (keywords.includes('agente') || iniciativa.includes('agente') || iniciativa.includes('asistente') || iniciativa.includes('chatbot') || iniciativa.includes('emilia') || iniciativa.includes('coach')) tags.add('Agente Conversacional');
+        if (keywords.includes('vision') || iniciativa.includes('control imagen') || iniciativa.includes('detección hurtos') || iniciativa.includes('reconocimiento facial')) tags.add('Control por Visión');
+        if (keywords.includes('predictivo') || iniciativa.includes('predicción') || iniciativa.includes('forecasting') || iniciativa.includes('churn') || iniciativa.includes('demanda')) tags.add('Modelo Predictivo');
+        if (keywords.includes('optimización') || iniciativa.includes('optimo') || iniciativa.includes('gemelo digital') || iniciativa.includes('ruteo') || iniciativa.includes('optimizador')) tags.add('Optimización y Simulación');
+        if (keywords.includes('paneles') || iniciativa.includes('dashboard') || iniciativa.includes('métricas') || iniciativa.includes('reporting') || iniciativa.includes('visualización') || (iniciativa.includes('control') && !iniciativa.includes('vision'))) tags.add('Paneles y BI');
+        if (keywords.includes('automatización') || iniciativa.includes('automatizar') || keywords.includes('rpa') || iniciativa.includes('procesos') || iniciativa.includes('asistencia') || iniciativa.includes('flujo de caja')) tags.add('Automatización Inteligente');
+        if (keywords.includes('idp') || iniciativa.includes('facturas')) tags.add('Procesamiento de Documentos');
+        if (iniciativa.includes('generación de contenido') || iniciativa.includes('respuestas a elementos')) tags.add('RAG');
+        if (keywords.includes('mercado') || iniciativa.includes('benchmarking') || iniciativa.includes('pricing')) tags.add('Inteligencia de Mercado');
+        if (keywords.includes('talento') || iniciativa.includes('colaboradores') || iniciativa.includes('reclutamiento') || iniciativa.includes('formación') || iniciativa.includes('desempeño') || iniciativa.includes('aprendizaje')) tags.add('Gestión de Talento');
+        if (keywords.includes('plataforma de datos') || iniciativa.includes('gobierno') || iniciativa.includes('data lakehouse')) tags.add('Gobierno y Datos');
+        if (iniciativa.includes('metahumano') || iniciativa.includes('monetizar') || iniciativa.includes('laas')) tags.add('Innovación y Nuevos Negocios');
+        if (iniciativa.includes('personalización') || iniciativa.includes('fidelización') || iniciativa.includes('recomendación') || iniciativa.includes('journey')) tags.add('Experiencia de Cliente');
+        
+        if(tags.size === 0 && (keywords.includes('ia') || keywords.includes('modelo'))){
+            tags.add('IA General');
+        }
+
+        const complementary = {
+            '16': ['18', '19', '37'],
+            '19': ['16', '24'],
+            '41': ['45', '46', '72'],
+            '74': ['73', '77', '80']
+        };
+
+        return {
+            ...project,
+            tags: Array.from(tags),
+            description: project.Description || 'No se encontró descripción para esta iniciativa.', // Usar la descripción del CSV
+            complementary: complementary[project.ID] || []
+        };
+    }
+
+    function calculateBenefits(projects) {
+        return projects.reduce((acc, project) => {
+            const benefit = project.Beneficios_Estimados;
+            const value = parseInt(benefit.replace(/[^0-9]/g, ''), 10);
+            if (benefit.toLowerCase().includes('ingreso')) {
+                acc.totalIngresos += value;
+            } else if (benefit.toLowerCase().includes('ahorro')) {
+                acc.totalAhorros += value;
+            }
+            return acc;
+        }, { totalIngresos: 0, totalAhorros: 0 });
+    }
+
+    function getBadgeClass(aporte) {
+        const mapping = {
+            'Sistémico': 'aporte-sistemico',
+            'Individual': 'aporte-individual',
+            'Habilitador': 'aporte-habilitador',
+            'Táctico / Bajo Alineamiento': 'aporte-tactico'
+        };
+        return mapping[aporte] || 'bg-secondary';
+    }
+
+    // --- Event Listeners ---
+    function addEventListeners() {
+        document.getElementById('projects-table-body').addEventListener('change', (e) => {
+            if (e.target.matches('.form-check-input')) {
+                const id = e.target.dataset.id;
+                if (e.target.checked) {
+                    selectedProjects.add(id);
+                } else {
+                    selectedProjects.delete(id);
+                }
+                render();
+            }
+        });
+
+        const keywordContainer = mainContent.querySelector('.card-body .d-flex');
+        if(keywordContainer) {
+            keywordContainer.addEventListener('click', (e) => {
+                if (e.target.matches('.btn[data-keyword]')) {
+                    const keyword = e.target.dataset.keyword;
+                    activeKeyword = activeKeyword === keyword ? null : keyword;
+                    render();
+                }
+                if (e.target.matches('#clear-keyword-filter')) {
+                    activeKeyword = null;
+                    render();
+                }
+            });
+        }
+
+        document.getElementById('projects-table-body').addEventListener('click', (e) => {
+            const link = e.target.closest('.project-link');
+            if (link) {
+                e.preventDefault();
+                const projectId = link.dataset.id;
+                showProjectModal(projectId);
+            }
+        });
+
+        // Listener para los links de proyectos DENTRO del modal del asistente
+        const aiModal = document.getElementById('ai-assistant-modal');
+        if (aiModal) {
+            aiModal.addEventListener('click', (e) => {
+                const link = e.target.closest('.project-link');
+                if(link) {
+                    e.preventDefault();
+                    const projectId = link.dataset.id;
+                    showProjectModal(projectId);
+                }
+            });
+        }
+
+        // Centralizar listeners del modal aquí
+        const aiSubmitModal = document.getElementById('ai-submit-modal');
+        if (aiSubmitModal) {
+            aiSubmitModal.addEventListener('click', handleAISubmit);
+            console.log('Listener añadido al botón de envío del modal');
+        } else {
+            console.error('No se encontró el botón de envío del modal');
+        }
+
+        const aiPromptModal = document.getElementById('ai-prompt-modal');
+        if (aiPromptModal) {
+            aiPromptModal.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleAISubmit();
+                }
+            });
+            console.log('Listener añadido al input del modal');
+        } else {
+            console.error('No se encontró el input del modal');
+        }
+    }
+
+    function showProjectModal(projectId) {
+        console.log('Mostrando modal para proyecto:', projectId); // Log de depuración
+        const project = allProjects.find(p => p.ID === projectId);
+        if (!project) return;
+
+        const modalBody = document.querySelector('#project-modal .modal-body');
+        console.log('Modal body:', modalBody); // Log de depuración
+
+        const complementaryProjectsHTML = project.complementary.map(id => {
+            const p = allProjects.find(compP => compP.ID === id);
+            return p ? `<li><a href="#" class="project-link" data-id="${p.ID}">${p.ID}: ${p.Iniciativa}</a></li>` : '';
+        }).join('');
+
+        modalBody.innerHTML = `
+            <h4 class="text-warning">${project.Iniciativa}</h4>
+            <p><strong>Gerencia:</strong> ${project.Gerencia}</p>
+            <p><strong>Aporte Estratégico:</strong> <span class="badge ${getBadgeClass(project.Aporte_Estrategico)}">${project.Aporte_Estrategico}</span></p>
+            <p><strong>Beneficio Estimado:</strong> ${project.Beneficios_Estimados}</p>
+            <hr>
+            <h6><i class="bi bi-body-text me-2"></i>Descripción</h6>
+            <p>${project.description}</p>
+            <h6><i class="bi bi-tags-fill me-2"></i>Tipología IA</h6>
+            <p>${project.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join(' ')}</p>
+            ${complementaryProjectsHTML ? `
+                <hr>
+                <h6><i class="bi bi-diagram-3-fill me-2"></i>Iniciativas Complementarias</h6>
+                <ul>${complementaryProjectsHTML}</ul>
+            ` : ''}
+        `;
+
+        // Re-attach event listener for links inside modal
+        const modalUl = modalBody.querySelector('ul');
+        console.log('Modal UL:', modalUl); // Log para depuración
+        
+        if (modalUl) {
+            modalUl.addEventListener('click', (e) => {
+                const link = e.target.closest('.project-link');
+                if(link) {
+                    e.preventDefault();
+                    showProjectModal(link.dataset.id);
+                }
+            });
+        }
+
+        try {
+            console.log('Instancia de modal:', projectModal); // Log de depuración
+            projectModal.show();
+        } catch (error) {
+            console.error('Error al mostrar el modal:', error);
+        }
+    }
+    
+    async function handleAISubmit() {
+        console.log("handleAISubmit function triggered.");
+        const promptInput = document.getElementById('ai-prompt-modal');
+        const submitButton = document.getElementById('ai-submit-modal');
+        const spinner = document.getElementById('ai-spinner-modal');
+        const responseArea = document.getElementById('ai-response-area-modal');
+
+        const prompt = promptInput.value;
+        if (!prompt) return;
+
+        spinner.classList.remove('d-none');
+        submitButton.disabled = true;
+        responseArea.innerHTML = ''; // Limpiar área de respuesta
+
+        const isQuestion = /¿|qué|cómo|cuál|dame|recomienda|\?/i.test(prompt);
+        const endpoint = isQuestion ? '/api/ask' : '/api/chat';
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, projects: Papa.unparse(allProjects) })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error del servidor: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            console.log('Respuesta del servidor:', data); // Añadir log para depuración
+
+            if (isQuestion) {
+                parseAIResponseToCards(data, responseArea);
+            } else {
+            const projectIds = data.response.split(',').map(id => id.trim());
+            
+            selectedProjects.clear();
+            projectIds.forEach(id => {
+                if(allProjects.some(p => p.ID === id)) {
+                    selectedProjects.add(id);
+                }
+            });
+            
+            responseArea.innerHTML = `<p class="text-success">Simulación completada. Se han seleccionado ${projectIds.length} proyectos según tu criterio.</p>`;
+                render(); // Re-renderizar la tabla principal para reflejar la selección
+            }
+            promptInput.value = '';
+
+        } catch (error) {
+            console.error('Error con el Agente IA:', error);
+            responseArea.innerHTML = `<p class="text-danger">Error: No se pudo completar la simulación. ${error.message}</p>`;
+        } finally {
+            spinner.classList.add('d-none');
+            submitButton.disabled = false;
+        }
+    }
+
+    init();
+});

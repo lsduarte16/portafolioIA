@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciativas Inteligencia Artificial 2026 | Chilexpress</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-dark border-right" id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                <i class="bi bi-box-seam-fill"></i> Chilexpress IA
+            </div>
+            <div class="list-group list-group-flush" id="macro-nav">
+                <a href="#" class="list-group-item list-group-item-action bg-dark active" data-view="dashboard">
+                    <i class="bi bi-speedometer2"></i> Listado Iniciativas
+                </a>
+                <!-- Links a Macroproyectos se insertarán aquí -->
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-warning" id="menu-toggle"><i class="bi bi-list"></i></button>
+                    <div class="ms-auto d-flex align-items-center">
+                        <span class="navbar-text me-3">
+                            Portafolio Estratégico de Proyectos
+                        </span>
+                        <button class="btn btn-warning" id="ai-modal-button" data-bs-toggle="modal" data-bs-target="#ai-assistant-modal">
+                            <i class="bi bi-magic"></i> Asistente IA
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container-fluid p-4" id="main-content">
+                <!-- Vistas se cargarán aquí -->
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal para Detalles de Proyecto -->
+    <div class="modal fade" id="project-modal" tabindex="-1" aria-labelledby="projectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="projectModalLabel">Detalle de la Iniciativa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Contenido dinámico se insertará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal del Asistente IA -->
+    <div class="modal fade" id="ai-assistant-modal" tabindex="-1" aria-labelledby="aiAssistantModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aiAssistantModalLabel"><i class="bi bi-robot me-2"></i>Asistente de Estrategia IA</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="min-height: 60vh;">
+                    <div class="container-fluid h-100">
+                        <div class="row h-100">
+                            <div class="col-lg-8" id="ai-response-area-modal">
+                                <!-- Las respuestas de la IA aparecerán aquí -->
+                                <p class="text-muted">Hola, soy tu asistente de estrategia. Pídeme que configure un portafolio o pregúntame cómo optimizar un área de negocio.</p>
+                            </div>
+                            <div class="col-lg-4 border-start border-secondary">
+                                <h6 class="text-warning">Proyectos Seleccionados</h6>
+                                <div id="selected-projects-preview" class="small">
+                                    <!-- Un preview de los proyectos seleccionados -->
+                                    <p class="text-muted small">Ningún proyecto seleccionado aún.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary">
+                     <div class="ai-input-container w-100">
+                        <input 
+                            type="text" 
+                            id="ai-prompt-modal" 
+                            class="ai-prompt-input" 
+                            placeholder="Ej: Recomiéndame 3 proyectos para reducir costos en operaciones..."
+                        >
+                        <button 
+                            class="ai-submit-button" 
+                            id="ai-submit-modal"
+                        >
+                            <span id="ai-spinner-modal" class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                            <span>Enviar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- PapaParse for CSV parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <!-- Custom JS -->
+    <script src="app.js"></script>
+</body>
+</html>
