@@ -8,8 +8,5 @@
         { "src": "/favicon.ico", "dest": "/public/favicon.ico" },
         { "src": "/style.css", "dest": "/style.css" },
         { "src": "/app.js", "dest": "/app.js" }
-    ],
-    "static": {
-        "public": true
-    }
+    ]
 }
