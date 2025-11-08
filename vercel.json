@@ -2,7 +2,7 @@
     "version": 2,
     "buildCommand": "echo 'No build needed'",
     "outputDirectory": ".",
-    "framework": "html",
+    "framework": "react-router",
     "routes": [
         { "src": "/", "dest": "/index.html" },
         { "src": "/app.js", "dest": "/app.js" },
