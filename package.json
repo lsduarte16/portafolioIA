@@ -1,23 +1,5 @@
 {
-  "name": "portafolio-estrategico-chilexpress",
+  "name": "portafolio-ia-chilexpress",
   "version": "1.0.0",
-  "description": "Dashboard de Iniciativas de Inteligencia Artificial para Chilexpress",
-  "main": "index.html",
-  "scripts": {
-    "start": "npx serve .",
-    "build": "echo 'No build step needed for static site'",
-    "deploy": "vercel"
-  },
-  "keywords": [
-    "chilexpress",
-    "ia",
-    "dashboard",
-    "proyectos"
-  ],
-  "author": "Equipo de Innovación Chilexpress",
-  "license": "UNLICENSED",
-  "devDependencies": {
-    "serve": "^14.2.1",
-    "vercel": "^32.5.0"
-  }
+  "description": "Dashboard de Iniciativas de IA para Chilexpress"
 }
