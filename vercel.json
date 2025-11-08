@@ -1,12 +1,15 @@
 {
     "version": 2,
     "builds": [
-        { "src": "index.html", "use": "@vercel/static" }
+        { "src": "index.html", "use": "@vercel/static" },
+        { "src": "app.js", "use": "@vercel/static" },
+        { "src": "style.css", "use": "@vercel/static" }
     ],
     "routes": [
-        { "src": "/(.*)", "dest": "/index.html" },
-        { "src": "/favicon.ico", "dest": "/public/favicon.ico" },
+        { "src": "/", "dest": "/index.html" },
+        { "src": "/app.js", "dest": "/app.js" },
         { "src": "/style.css", "dest": "/style.css" },
-        { "src": "/app.js", "dest": "/app.js" }
+        { "src": "/favicon.ico", "dest": "/public/favicon.ico" },
+        { "src": "/(.*)", "dest": "/index.html" }
     ]
 }
