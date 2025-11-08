@@ -299,8 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function enrichProjectData(project) {
-        const iniciativa = project.Iniciativa.toLowerCase();
-        const keywords = project.Keywords.toLowerCase();
+        const iniciativa = (project.Iniciativa || '').toLowerCase();
+        const keywords = (project.Keywords || '').toLowerCase();
         const tags = new Set();
 
         // Lógica de etiquetado
