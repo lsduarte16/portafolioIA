@@ -3,45 +3,22 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "style.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "app.js",
-      "use": "@vercel/static"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "index.html",
+          "style.css",
+          "app.js",
+          "proyectos_dashboard.csv",
+          "favicon.ico"
+        ]
+      }
     }
   ],
   "routes": [
     {
-      "src": "/style.css",
-      "dest": "/style.css"
-    },
-    {
-      "src": "/app.js",
-      "dest": "/app.js"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "server.js"
-    },
-    {
       "src": "/(.*)",
       "dest": "server.js"
     }
-  ],
-  "static": {
-    "rewrites": [
-      {
-        "source": "/style.css",
-        "destination": "/style.css"
-      },
-      {
-        "source": "/app.js",
-        "destination": "/app.js"
-      }
-    ]
-  }
+  ]
 }

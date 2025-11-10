@@ -13,45 +13,42 @@ const app = express();
 const port = 3000;
 
 // Middlewares
-app.use(cors({
-    origin: '*', // Permitir cualquier origen
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-})); // Permite peticiones desde el frontend
+app.use(cors()); // Permite peticiones desde el frontend
 app.use(express.json()); // Permite al servidor entender JSON
+app.use(express.static(path.join(__dirname))); // Sirve los archivos estáticos (html, css, js)
 
 // Configuración de archivos estáticos más específica
-app.use(express.static(path.join(__dirname), {
-    setHeaders: (res, filePath) => {
-        if (path.extname(filePath) === '.css') {
-            res.setHeader('Content-Type', 'text/css');
-            res.setHeader('Cache-Control', 'public, max-age=86400');
-        }
-        if (path.extname(filePath) === '.js') {
-            res.setHeader('Content-Type', 'application/javascript');
-            res.setHeader('Cache-Control', 'public, max-age=86400');
-        }
-    }
-}));
+// app.use(express.static(path.join(__dirname), {
+//     setHeaders: (res, filePath) => {
+//         if (path.extname(filePath) === '.css') {
+//             res.setHeader('Content-Type', 'text/css');
+//             res.setHeader('Cache-Control', 'public, max-age=86400');
+//         }
+//         if (path.extname(filePath) === '.js') {
+//             res.setHeader('Content-Type', 'application/javascript');
+//             res.setHeader('Cache-Control', 'public, max-age=86400');
+//         }
+//     }
+// }));
 
 // Rutas específicas para archivos estáticos con manejo explícito
-app.get('/style.css', (req, res) => {
-    res.sendFile(path.join(__dirname, 'style.css'), {
-        headers: {
-            'Content-Type': 'text/css',
-            'Cache-Control': 'public, max-age=86400'
-        }
-    });
-});
+// app.get('/style.css', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'style.css'), {
+//         headers: {
+//             'Content-Type': 'text/css',
+//             'Cache-Control': 'public, max-age=86400'
+//         }
+//     });
+// });
 
-app.get('/app.js', (req, res) => {
-    res.sendFile(path.join(__dirname, 'app.js'), {
-        headers: {
-            'Content-Type': 'application/javascript',
-            'Cache-Control': 'public, max-age=86400'
-        }
-    });
-});
+// app.get('/app.js', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'app.js'), {
+//         headers: {
+//             'Content-Type': 'application/javascript',
+//             'Cache-Control': 'public, max-age=86400'
+//         }
+//     });
+// });
 
 // Configuración del cliente de Azure OpenAI
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
