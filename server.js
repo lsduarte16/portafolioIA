@@ -19,23 +19,27 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 })); // Permite peticiones desde el frontend
 app.use(express.json()); // Permite al servidor entender JSON
+
+// Configuración de archivos estáticos más específica
 app.use(express.static(path.join(__dirname), {
     setHeaders: (res, filePath) => {
         if (path.extname(filePath) === '.css') {
             res.setHeader('Content-Type', 'text/css');
+            res.setHeader('Cache-Control', 'public, max-age=86400');
         }
         if (path.extname(filePath) === '.js') {
             res.setHeader('Content-Type', 'application/javascript');
+            res.setHeader('Cache-Control', 'public, max-age=86400');
         }
     }
-})); // Sirve los archivos estáticos (html, css, js)
-app.use('/public', express.static(path.join(__dirname, 'public')));
+}));
 
-// Rutas específicas para archivos estáticos
+// Rutas específicas para archivos estáticos con manejo explícito
 app.get('/style.css', (req, res) => {
     res.sendFile(path.join(__dirname, 'style.css'), {
         headers: {
-            'Content-Type': 'text/css'
+            'Content-Type': 'text/css',
+            'Cache-Control': 'public, max-age=86400'
         }
     });
 });
@@ -43,7 +47,8 @@ app.get('/style.css', (req, res) => {
 app.get('/app.js', (req, res) => {
     res.sendFile(path.join(__dirname, 'app.js'), {
         headers: {
-            'Content-Type': 'application/javascript'
+            'Content-Type': 'application/javascript',
+            'Cache-Control': 'public, max-age=86400'
         }
     });
 });
