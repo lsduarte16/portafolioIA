@@ -9,112 +9,865 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
+    <style>
+        /* === ESTILOS GENERALES === */
+        :root {
+            --chx-yellow: #FFD100;
+            --chx-dark: #1a1a1a;
+            --chx-light-dark: #2a2a2a;
+            --chx-text: #ffffff;
+            --chx-text-muted: #ced4da;
+        }
 
-    <div class="d-flex" id="wrapper">
-        <!-- Sidebar -->
-        <div class="bg-dark border-right" id="sidebar-wrapper">
-            <div class="sidebar-heading">
-                <i class="bi bi-box-seam-fill"></i> Chilexpress IA
-            </div>
-            <div class="list-group list-group-flush" id="macro-nav">
-                <a href="#" class="list-group-item list-group-item-action bg-dark active" data-view="dashboard">
-                    <i class="bi bi-speedometer2"></i> Listado Iniciativas
-                </a>
-                <!-- Links a Macroproyectos se insertarán aquí -->
-            </div>
-        </div>
+        /* Anular estilos de Bootstrap de manera global */
+        body, 
+        .bg-dark,
+        .form-control, 
+        .form-control:focus,
+        .form-control::placeholder,
+        .btn,
+        .btn:focus {
+            background-color: var(--chx-dark) !important;
+            color: var(--chx-text) !important;
+            border-color: var(--chx-light-dark) !important;
+        }
 
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-                <div class="container-fluid">
-                    <button class="btn btn-warning" id="menu-toggle"><i class="bi bi-list"></i></button>
-                    <div class="ms-auto d-flex align-items-center">
-                        <span class="navbar-text me-3">
-                            Portafolio Estratégico de Proyectos
-                        </span>
-                        <button class="btn btn-warning" id="ai-modal-button" data-bs-toggle="modal" data-bs-target="#ai-assistant-modal">
-                            <i class="bi bi-magic"></i> Asistente IA
-                        </button>
-                    </div>
-                </div>
-            </nav>
+        /* Estilos específicos para inputs */
+        .form-control {
+            background-color: var(--chx-input-bg) !important;
+            color: var(--chx-text) !important;
+            border: 1px solid var(--chx-light-dark) !important;
+        }
 
-            <main class="container-fluid p-4" id="main-content">
-                <!-- Vistas se cargarán aquí -->
-            </main>
-        </div>
-    </div>
+        .form-control::placeholder {
+            color: var(--chx-text-muted) !important;
+            opacity: 0.7 !important;
+        }
 
-    <!-- Modal para Detalles de Proyecto -->
-    <div class="modal fade" id="project-modal" tabindex="-1" aria-labelledby="projectModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="projectModalLabel">Detalle de la Iniciativa</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Contenido dinámico se insertará aquí -->
-                </div>
-            </div>
-        </div>
-    </div>
+        /* Estilos para botones */
+        .btn-warning {
+            background-color: var(--chx-yellow) !important;
+            color: var(--chx-dark) !important;
+            border: none !important;
+        }
 
-    <!-- Modal del Asistente IA -->
-    <div class="modal fade" id="ai-assistant-modal" tabindex="-1" aria-labelledby="aiAssistantModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="aiAssistantModalLabel"><i class="bi bi-robot me-2"></i>Asistente de Estrategia IA</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" style="min-height: 60vh;">
-                    <div class="container-fluid h-100">
-                        <div class="row h-100">
-                            <div class="col-lg-8" id="ai-response-area-modal">
-                                <!-- Las respuestas de la IA aparecerán aquí -->
-                                <p class="text-muted">Hola, soy tu asistente de estrategia. Pídeme que configure un portafolio o pregúntame cómo optimizar un área de negocio.</p>
-                            </div>
-                            <div class="col-lg-4 border-start border-secondary">
-                                <h6 class="text-warning">Proyectos Seleccionados</h6>
-                                <div id="selected-projects-preview" class="small">
-                                    <!-- Un preview de los proyectos seleccionados -->
-                                    <p class="text-muted small">Ningún proyecto seleccionado aún.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-top border-secondary">
-                     <div class="ai-input-container w-100">
-                        <input 
-                            type="text" 
-                            id="ai-prompt-modal" 
-                            class="ai-prompt-input" 
-                            placeholder="Ej: Recomiéndame 3 proyectos para reducir costos en operaciones..."
-                        >
-                        <button 
-                            class="ai-submit-button" 
-                            id="ai-submit-modal"
-                        >
-                            <span id="ai-spinner-modal" class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
-                            <span>Enviar</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        /* === ESTRUCTURA DEL DASHBOARD === */
+        #wrapper {
+            display: flex;
+            height: 100%;
+        }
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        #sidebar-wrapper {
+            min-height: 100vh;
+            width: 250px;
+            transition: margin .25s ease-out;
+            background-color: var(--chx-dark);
+        }
+
+        #sidebar-wrapper .sidebar-heading {
+            padding: 1.5rem 1.25rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--chx-yellow);
+            border-bottom: 1px solid var(--chx-light-dark);
+        }
+
+        #sidebar-wrapper .list-group-item {
+            border: none;
+            padding: 1rem 1.25rem;
+            color: var(--chx-text-muted);
+            border-left: 4px solid transparent;
+        }
+
+        #sidebar-wrapper .list-group-item:hover,
+        #sidebar-wrapper .list-group-item.active {
+            background-color: var(--chx-light-dark);
+            color: var(--chx-yellow);
+            border-left: 4px solid var(--chx-yellow);
+        }
+
+        /* --- Layout --- */
+        #page-content-wrapper {
+            width: 100%;
+            min-width: 0;
+            transition: margin .25s ease-out;
+        }
+
+        #main-content {
+            /* No flex properties needed here anymore */
+        }
+
+        #wrapper.toggled #sidebar-wrapper {
+            margin-left: -250px;
+        }
+
+        #menu-toggle {
+            background-color: var(--chx-yellow);
+            color: var(--chx-dark);
+            border: none;
+        }
+
+        /* === ESTILOS DE COMPONENTES === */
+        .card {
+            background-color: var(--chx-dark);
+            border: 1px solid #3a3a3a;
+        }
+
+        .card-header {
+            background-color: #343a40;
+            color: var(--chx-yellow);
+            font-weight: bold;
+        }
+
+        .table {
+            color: var(--chx-text);
+        }
+
+        .table-dark {
+            --bs-table-bg: var(--chx-dark);
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: var(--chx-light-dark);
+            color: var(--chx-yellow);
+        }
+
+        /* Corrección específica para el input del Agente IA */
+        #ai-prompt.form-control {
+            background-color: var(--chx-dark) !important;
+            color: var(--chx-text) !important;
+            border: 1px solid var(--chx-light-dark) !important;
+        }
+
+        #ai-prompt.form-control::placeholder {
+            color: var(--chx-text-muted) !important;
+            opacity: 0.7 !important;
+        }
+
+        /* Corrección de foco */
+        .form-control:focus, 
+        .form-select:focus,
+        input[type="text"]:focus,
+        textarea:focus {
+            background-color: var(--chx-input-bg) !important;
+            border-color: var(--chx-yellow) !important;
+            color: var(--chx-text) !important;
+            box-shadow: 0 0 0 0.25rem rgba(255, 209, 0, 0.25) !important;
+        }
+
+        /* === AGENTE IA === */
+        #ai-agent-card .card-body {
+            max-height: 60vh;
+            min-height: 150px;
+            overflow-y: auto;
+        }
+
+        #ai-response {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .spinner-border {
+            color: var(--chx-yellow);
+        }
+
+        /* === INDICADORES (KPIs) === */
+        .kpi-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%; /* Asegura que todas las tarjetas tengan la misma altura */
+        }
+
+        .kpi-card h6 {
+            color: var(--chx-text-muted) !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .kpi-card .display-4 {
+            color: var(--chx-yellow);
+        }
+
+        /* === BADGES PERSONALIZADOS === */
+        .badge.aporte-sistemico { background-color: #0d6efd !important; }
+        .badge.aporte-individual { background-color: #198754 !important; }
+        .badge.aporte-habilitador { background-color: #fd7e14 !important; }
+        .badge.aporte-tactico { background-color: #6c757d !important; }
+
+        .text-muted {
+            color: #a0a0a0 !important; /* Aumentar el contraste para mejorar la legibilidad */
+        }
+
+        .badge.bg-secondary {
+            color: #fff !important; /* Asegurar que el texto en badges secundarios sea blanco */
+            background-color: #5a6268 !important; /* Un gris ligeramente más oscuro para mayor contraste */
+        }
+
+        /* === REFACTOR DEL ASISTENTE DE IA (Componente Aislado) === */
+
+        #ai-agent-card {
+            background-color: var(--chx-light-dark);
+            border: 1px solid var(--chx-yellow);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(255, 209, 0, 0.1);
+        }
+
+        #ai-agent-card .card-header {
+            background-color: transparent;
+            color: var(--chx-yellow);
+            border-bottom: 1px solid rgba(255, 209, 0, 0.2);
+            font-weight: bold;
+        }
+
+        #ai-agent-card .card-body {
+            background-color: var(--chx-dark);
+            color: var(--chx-text-muted);
+        }
+
+        #ai-agent-card .card-footer {
+            background-color: var(--chx-light-dark);
+            border-top: none;
+        }
+
+        .ai-response-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .ai-response-card {
+            background-color: #343a40;
+            border: 1px solid #495057;
+            border-radius: 0.25rem;
+        }
+
+        .ai-response-card .card-header {
+            background-color: #495057;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .ai-response-card .card-body {
+            padding: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .fade-in-block {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Input personalizado, desacoplado de Bootstrap */
+        .ai-input-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .ai-prompt-input {
+            flex-grow: 1;
+            background-color: var(--chx-dark);
+            color: var(--chx-text);
+            border: 1px solid #4a4a4a;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .ai-prompt-input::placeholder {
+            color: var(--chx-text-muted);
+            opacity: 0.6;
+        }
+
+        .ai-prompt-input:focus {
+            outline: none;
+            border-color: var(--chx-yellow);
+            box-shadow: 0 0 0 3px rgba(255, 209, 0, 0.2);
+        }
+
+        /* Botón personalizado */
+        .ai-submit-button {
+            background-color: var(--chx-yellow);
+            color: var(--chx-dark);
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .ai-submit-button:hover {
+            filter: brightness(1.1);
+        }
+
+        .ai-submit-button:disabled {
+            background-color: #4a4a4a;
+            cursor: not-allowed;
+        }
+
+        .ai-submit-button .spinner-border {
+            color: var(--chx-dark);
+        }
+    </style>
     <!-- PapaParse for CSV parsing -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <!-- Custom JS -->
-    <script src="/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let allProjects = [];
+            let macroProjects = [];
+            let selectedProjects = new Set();
+            let currentView = 'dashboard';
+            let currentFilter = '';
+            let activeKeyword = null; // Nuevo: para el filtro de keyword
+            let projectModal = null; // para la instancia del modal
+            let uniqueTags = []; // Para los filtros dinámicos
+
+            const mainContent = document.getElementById('main-content');
+            const macroNav = document.getElementById('macro-nav');
+
+            // --- Inicialización ---
+            async function init() {
+                const response = await fetch('proyectos_dashboard.csv');
+                const csvText = await response.text();
+                
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        allProjects = results.data.map(enrichProjectData); // Usar la función de enriquecimiento
+                        macroProjects = [...new Set(allProjects.map(p => p.Macroproyecto_Revisado).filter(Boolean))];
+                        
+                        // Generar lista de tags únicos para los filtros
+                        const allTags = allProjects.flatMap(p => p.tags);
+                        uniqueTags = [...new Set(allTags)].sort();
+
+                        setupNavigation();
+                        console.log('Inicializando modal:', document.getElementById('project-modal')); // Log de depuración
+                        projectModal = new bootstrap.Modal(document.getElementById('project-modal')); // Inicializar el modal
+                        render();
+                    }
+                });
+
+                // Configurar listeners globales
+                document.addEventListener('DOMContentLoaded', () => {
+                    const aiSubmitModal = document.getElementById('ai-submit-modal');
+                    const aiPromptModal = document.getElementById('ai-prompt-modal');
+
+                    console.log('Elementos encontrados en DOMContentLoaded:', {
+                        aiSubmitModal: !!aiSubmitModal,
+                        aiPromptModal: !!aiPromptModal
+                    });
+
+                    if (aiSubmitModal) {
+                        aiSubmitModal.addEventListener('click', handleAISubmit);
+                    }
+
+                    if (aiPromptModal) {
+                        aiPromptModal.addEventListener('keypress', (e) => {
+                            if (e.key === 'Enter') {
+                                handleAISubmit();
+                            }
+                        });
+                    }
+                });
+
+                document.getElementById('menu-toggle').addEventListener('click', () => {
+                    document.getElementById('wrapper').classList.toggle('toggled');
+                });
+            }
+            
+            // --- Navegación y Renderizado ---
+            function setupNavigation() {
+                macroProjects.forEach(mp => {
+                    const link = document.createElement('a');
+                    link.href = '#';
+                    link.className = 'list-group-item list-group-item-action bg-dark';
+                    link.dataset.view = mp;
+                    link.innerHTML = `<i class="bi bi-folder"></i> ${mp}`;
+                    macroNav.appendChild(link);
+                });
+
+                macroNav.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = e.target.closest('a');
+                    if (target) {
+                        document.querySelector('#macro-nav .active').classList.remove('active');
+                        target.classList.add('active');
+                        currentView = target.dataset.view;
+                        currentFilter = currentView === 'dashboard' ? '' : currentView;
+                        render();
+                    }
+                });
+            }
+
+            function render() {
+                let projectsToDisplay = currentFilter 
+                    ? allProjects.filter(p => p.Macroproyecto_Revisado === currentFilter)
+                    : [...allProjects];
+
+                if (activeKeyword) {
+                    projectsToDisplay = projectsToDisplay.filter(p => 
+                        p.tags && p.tags.includes(activeKeyword)
+                    );
+                }
+                
+                mainContent.innerHTML = `
+                    <div class="mb-4">
+                        <h1 class="h2 text-warning">${currentView === 'dashboard' ? 'Listado General' : currentView}</h1>
+                        <p class="text-muted">Análisis y simulación de la cartera de proyectos.</p>
+                    </div>
+                    ${createKPIs(projectsToDisplay)}
+                    <div class="row">
+                        <div class="col-lg-12">
+                            ${createKeywordFilters()}
+                            ${createProjectsTable(projectsToDisplay)}
+                        </div>
+                    </div>
+                `;
+                addEventListeners();
+                updateSelectedProjectsPreview();
+            }
+
+            // --- Creación de Componentes HTML ---
+            function createKPIs(projects) {
+                const totalProjects = projects.length;
+                const selectedCount = projects.filter(p => selectedProjects.has(p.ID)).length;
+                
+                const { totalIngresos, totalAhorros } = calculateBenefits(projects.filter(p => selectedProjects.has(p.ID)));
+
+                return `
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card kpi-card text-center p-3">
+                                <h6 class="text-muted">Proyectos Seleccionados</h6>
+                                <h2 class="display-4 font-weight-bold">${selectedCount} / ${totalProjects}</h2>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card kpi-card text-center p-3">
+                                <h6 class="text-muted">Ingresos Potenciales</h6>
+                                <h2 class="display-4 font-weight-bold">$${totalIngresos.toLocaleString()}</h2>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card kpi-card text-center p-3">
+                                <h6 class="text-muted">Ahorros Potenciales</h6>
+                                <h2 class="display-4 font-weight-bold">$${totalAhorros.toLocaleString()}</h2>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
+            function createProjectsTable(projects) {
+                 return `
+                    <div class="card">
+                        <div class="card-header">
+                            Lista de Iniciativas
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="table-responsive flex-grow-1" style="overflow-y: auto;">
+                                <table class="table table-dark table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Sel.</th>
+                                            <th>ID</th>
+                                            <th>Iniciativa</th>
+                                            <th>Gerencia</th>
+                                            <th>Beneficio Estimado</th>
+                                            <th>Tipología IA</th>
+                                            <th>Aporte</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="projects-table-body">
+                                        ${projects.map(p => `
+                                            <tr data-id="${p.ID}">
+                                                <td><input type="checkbox" class="form-check-input" data-id="${p.ID}" ${selectedProjects.has(p.ID) ? 'checked' : ''}></td>
+                                                <td>${p.ID}</td>
+                                                <td><a href="#" class="text-white project-link" data-id="${p.ID}">${p.Iniciativa}</a></td>
+                                                <td>${p.Gerencia}</td>
+                                                <td>${p.Beneficios_Estimados}</td>
+                                                <td>
+                                                    ${p.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('') || ''}
+                                                </td>
+                                                <td><span class="badge ${getBadgeClass(p.Aporte_Estrategico)}">${p.Aporte_Estrategico}</span></td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
+            function createKeywordFilters() {
+                return `
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">Filtrar por Tipología IA</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                ${uniqueTags.map(k => `
+                                    <button class="btn btn-sm ${activeKeyword === k ? 'btn-warning' : 'btn-outline-secondary'}" data-keyword="${k}">
+                                        ${k}
+                                    </button>
+                                `).join('')}
+                                ${activeKeyword ? '<button class="btn btn-sm btn-outline-danger" id="clear-keyword-filter">Limpiar</button>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // --- Lógica y Utilidades ---
+
+            function parseAIResponseToCards(data, responseArea) {
+                if (data.response) { // Maneja el caso de selección de proyectos (modo antiguo)
+                    const projectIds = data.response.split(',').map(id => id.trim());
+                    selectedProjects.clear();
+                    projectIds.forEach(id => {
+                        if(allProjects.some(p => p.ID === id)) {
+                            selectedProjects.add(id);
+                        }
+                    });
+                    responseArea.innerHTML = `<p class="text-success">Simulación completada. Se han seleccionado ${projectIds.length} proyectos según tu criterio.</p>`;
+                    render();
+                    return;
+                }
+
+                if (!data.recommendations || data.recommendations.length === 0) {
+                    responseArea.innerHTML = `<p class="text-white small">${data.executiveSummary || "No se encontraron recomendaciones específicas."}</p>`;
+                    return;
+                }
+
+                // Renderizar la estructura para el nuevo análisis estratégico
+                const summaryHTML = data.executiveSummary ? `
+                    <div class="fade-in-block" id="summary-block">
+                        <h6 class="text-warning">Resumen Ejecutivo</h6>
+                        <p class="text-white-50">${data.executiveSummary}</p>
+                    </div>` : '';
+
+                const recommendationsHTML = data.recommendations.map((rec, index) => {
+                    const project = allProjects.find(p => p.ID === rec.id);
+                    if (!project) return '';
+                    return `
+                        <div class="ai-response-card mb-3 fade-in-block" id="rec-block-${index}">
+                            <div class="card-header">
+                                 <a href="#" class="text-warning project-link" data-id="${project.ID}"><strong>ID ${project.ID}:</strong> ${project.Iniciativa}</a>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text small text-white-50">${rec.justification}</p>
+                            </div>
+                        </div>`;
+                }).join('');
+
+                const synergiesHTML = data.synergies ? `
+                    <div class="mt-4 fade-in-block" id="synergies-block">
+                        <h6 class="text-warning">Sinergias</h6>
+                        <p class="text-white-50">${data.synergies}</p>
+                    </div>` : '';
+
+                const risksHTML = data.risks ? `
+                    <div class="mt-4 fade-in-block" id="risks-block">
+                        <h6 class="text-warning">Riesgos Potenciales</h6>
+                        <p class="text-white-50">${data.risks}</p>
+                    </div>` : '';
+
+                responseArea.innerHTML = `
+                    ${summaryHTML}
+                    <h6 class="text-warning mt-4 fade-in-block" id="rec-title-block">Proyectos Recomendados</h6>
+                    ${recommendationsHTML}
+                    ${synergiesHTML}
+                    ${risksHTML}
+                `;
+
+                // Animar la aparición en cascada
+                const blocks = [
+                    '#summary-block', '#rec-title-block', 
+                    ...data.recommendations.map((_, i) => `#rec-block-${i}`),
+                    '#synergies-block', '#risks-block'
+                ];
+
+                blocks.forEach((selector, index) => {
+                    const element = responseArea.querySelector(selector);
+                    if (element) {
+                        setTimeout(() => {
+                            element.classList.add('visible');
+                        }, index * 200); // 200ms de retraso entre cada bloque
+                    }
+                });
+            }
+
+            function updateSelectedProjectsPreview() {
+                const previewArea = document.getElementById('selected-projects-preview');
+                const selected = allProjects.filter(p => selectedProjects.has(p.ID));
+
+                if (selected.length === 0) {
+                    previewArea.innerHTML = '<p class="text-muted small">Ningún proyecto seleccionado aún.</p>';
+                    return;
+                }
+
+                previewArea.innerHTML = `
+                    <ul class="list-unstyled">
+                        ${selected.map(p => `<li><i class="bi bi-box-seam me-2"></i>${p.ID}: ${p.Iniciativa}</li>`).join('')}
+                    </ul>
+                `;
+            }
+
+            function enrichProjectData(project) {
+                const iniciativa = (project.Iniciativa || '').toLowerCase();
+                const keywords = (project.Keywords || '').toLowerCase();
+                const tags = new Set();
+
+                // Lógica de etiquetado
+                if (keywords.includes('agente') || iniciativa.includes('agente') || iniciativa.includes('asistente') || iniciativa.includes('chatbot') || iniciativa.includes('emilia') || iniciativa.includes('coach')) tags.add('Agente Conversacional');
+                if (keywords.includes('vision') || iniciativa.includes('control imagen') || iniciativa.includes('detección hurtos') || iniciativa.includes('reconocimiento facial')) tags.add('Control por Visión');
+                if (keywords.includes('predictivo') || iniciativa.includes('predicción') || iniciativa.includes('forecasting') || iniciativa.includes('churn') || iniciativa.includes('demanda')) tags.add('Modelo Predictivo');
+                if (keywords.includes('optimización') || iniciativa.includes('optimo') || iniciativa.includes('gemelo digital') || iniciativa.includes('ruteo') || iniciativa.includes('optimizador')) tags.add('Optimización y Simulación');
+                if (keywords.includes('paneles') || iniciativa.includes('dashboard') || iniciativa.includes('métricas') || iniciativa.includes('reporting') || iniciativa.includes('visualización') || (iniciativa.includes('control') && !iniciativa.includes('vision'))) tags.add('Paneles y BI');
+                if (keywords.includes('automatización') || iniciativa.includes('automatizar') || keywords.includes('rpa') || iniciativa.includes('procesos') || iniciativa.includes('asistencia') || iniciativa.includes('flujo de caja')) tags.add('Automatización Inteligente');
+                if (keywords.includes('idp') || iniciativa.includes('facturas')) tags.add('Procesamiento de Documentos');
+                if (iniciativa.includes('generación de contenido') || iniciativa.includes('respuestas a elementos')) tags.add('RAG');
+                if (keywords.includes('mercado') || iniciativa.includes('benchmarking') || iniciativa.includes('pricing')) tags.add('Inteligencia de Mercado');
+                if (keywords.includes('talento') || iniciativa.includes('colaboradores') || iniciativa.includes('reclutamiento') || iniciativa.includes('formación') || iniciativa.includes('desempeño') || iniciativa.includes('aprendizaje')) tags.add('Gestión de Talento');
+                if (keywords.includes('plataforma de datos') || iniciativa.includes('gobierno') || iniciativa.includes('data lakehouse')) tags.add('Gobierno y Datos');
+                if (iniciativa.includes('metahumano') || iniciativa.includes('monetizar') || iniciativa.includes('laas')) tags.add('Innovación y Nuevos Negocios');
+                if (iniciativa.includes('personalización') || iniciativa.includes('fidelización') || iniciativa.includes('recomendación') || iniciativa.includes('journey')) tags.add('Experiencia de Cliente');
+                
+                if(tags.size === 0 && (keywords.includes('ia') || keywords.includes('modelo'))){
+                    tags.add('IA General');
+                }
+
+                const complementary = {
+                    '16': ['18', '19', '37'],
+                    '19': ['16', '24'],
+                    '41': ['45', '46', '72'],
+                    '74': ['73', '77', '80']
+                };
+
+                return {
+                    ...project,
+                    tags: Array.from(tags),
+                    description: project.Description || 'No se encontró descripción para esta iniciativa.', // Usar la descripción del CSV
+                    complementary: complementary[project.ID] || []
+                };
+            }
+
+            function calculateBenefits(projects) {
+                return projects.reduce((acc, project) => {
+                    const benefit = project.Beneficios_Estimados;
+                    const value = parseInt(benefit.replace(/[^0-9]/g, ''), 10);
+                    if (benefit.toLowerCase().includes('ingreso')) {
+                        acc.totalIngresos += value;
+                    } else if (benefit.toLowerCase().includes('ahorro')) {
+                        acc.totalAhorros += value;
+                    }
+                    return acc;
+                }, { totalIngresos: 0, totalAhorros: 0 });
+            }
+
+            function getBadgeClass(aporte) {
+                const mapping = {
+                    'Sistémico': 'aporte-sistemico',
+                    'Individual': 'aporte-individual',
+                    'Habilitador': 'aporte-habilitador',
+                    'Táctico / Bajo Alineamiento': 'aporte-tactico'
+                };
+                return mapping[aporte] || 'bg-secondary';
+            }
+
+            // --- Event Listeners ---
+            function addEventListeners() {
+                document.getElementById('projects-table-body').addEventListener('change', (e) => {
+                    if (e.target.matches('.form-check-input')) {
+                        const id = e.target.dataset.id;
+                        if (e.target.checked) {
+                            selectedProjects.add(id);
+                        } else {
+                            selectedProjects.delete(id);
+                        }
+                        render();
+                    }
+                });
+
+                const keywordContainer = mainContent.querySelector('.card-body .d-flex');
+                if(keywordContainer) {
+                    keywordContainer.addEventListener('click', (e) => {
+                        if (e.target.matches('.btn[data-keyword]')) {
+                            const keyword = e.target.dataset.keyword;
+                            activeKeyword = activeKeyword === keyword ? null : keyword;
+                            render();
+                        }
+                        if (e.target.matches('#clear-keyword-filter')) {
+                            activeKeyword = null;
+                            render();
+                        }
+                    });
+                }
+
+                document.getElementById('projects-table-body').addEventListener('click', (e) => {
+                    const link = e.target.closest('.project-link');
+                    if (link) {
+                        e.preventDefault();
+                        const projectId = link.dataset.id;
+                        showProjectModal(projectId);
+                    }
+                });
+
+                // Listener para los links de proyectos DENTRO del modal del asistente
+                const aiModal = document.getElementById('ai-assistant-modal');
+                if (aiModal) {
+                    aiModal.addEventListener('click', (e) => {
+                        const link = e.target.closest('.project-link');
+                        if(link) {
+                            e.preventDefault();
+                            const projectId = link.dataset.id;
+                            showProjectModal(projectId);
+                        }
+                    });
+                }
+
+                // Centralizar listeners del modal aquí
+                const aiSubmitModal = document.getElementById('ai-submit-modal');
+                if (aiSubmitModal) {
+                    aiSubmitModal.addEventListener('click', handleAISubmit);
+                    console.log('Listener añadido al botón de envío del modal');
+                } else {
+                    console.error('No se encontró el botón de envío del modal');
+                }
+
+                const aiPromptModal = document.getElementById('ai-prompt-modal');
+                if (aiPromptModal) {
+                    aiPromptModal.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            handleAISubmit();
+                        }
+                    });
+                    console.log('Listener añadido al input del modal');
+                } else {
+                    console.error('No se encontró el input del modal');
+                }
+            }
+
+            function showProjectModal(projectId) {
+                console.log('Mostrando modal para proyecto:', projectId); // Log de depuración
+                const project = allProjects.find(p => p.ID === projectId);
+                if (!project) return;
+
+                const modalBody = document.querySelector('#project-modal .modal-body');
+                console.log('Modal body:', modalBody); // Log de depuración
+
+                const complementaryProjectsHTML = project.complementary.map(id => {
+                    const p = allProjects.find(compP => compP.ID === id);
+                    return p ? `<li><a href="#" class="project-link" data-id="${p.ID}">${p.ID}: ${p.Iniciativa}</a></li>` : '';
+                }).join('');
+
+                modalBody.innerHTML = `
+                    <h4 class="text-warning">${project.Iniciativa}</h4>
+                    <p><strong>Gerencia:</strong> ${project.Gerencia}</p>
+                    <p><strong>Aporte Estratégico:</strong> <span class="badge ${getBadgeClass(project.Aporte_Estrategico)}">${project.Aporte_Estrategico}</span></p>
+                    <p><strong>Beneficio Estimado:</strong> ${project.Beneficios_Estimados}</p>
+                    <hr>
+                    <h6><i class="bi bi-body-text me-2"></i>Descripción</h6>
+                    <p>${project.description}</p>
+                    <h6><i class="bi bi-tags-fill me-2"></i>Tipología IA</h6>
+                    <p>${project.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join(' ')}</p>
+                    ${complementaryProjectsHTML ? `
+                        <hr>
+                        <h6><i class="bi bi-diagram-3-fill me-2"></i>Iniciativas Complementarias</h6>
+                        <ul>${complementaryProjectsHTML}</ul>
+                    ` : ''}
+                `;
+
+                // Re-attach event listener for links inside modal
+                const modalUl = modalBody.querySelector('ul');
+                console.log('Modal UL:', modalUl); // Log para depuración
+                
+                if (modalUl) {
+                    modalUl.addEventListener('click', (e) => {
+                        const link = e.target.closest('.project-link');
+                        if(link) {
+                            e.preventDefault();
+                            showProjectModal(link.dataset.id);
+                        }
+                    });
+                }
+
+                try {
+                    console.log('Instancia de modal:', projectModal); // Log de depuración
+                    projectModal.show();
+                } catch (error) {
+                    console.error('Error al mostrar el modal:', error);
+                }
+            }
+            
+            async function handleAISubmit() {
+                console.log("handleAISubmit function triggered.");
+                const promptInput = document.getElementById('ai-prompt-modal');
+                const submitButton = document.getElementById('ai-submit-modal');
+                const spinner = document.getElementById('ai-spinner-modal');
+                const responseArea = document.getElementById('ai-response-area-modal');
+
+                const prompt = promptInput.value;
+                if (!prompt) return;
+
+                spinner.classList.remove('d-none');
+                submitButton.disabled = true;
+                responseArea.innerHTML = ''; // Limpiar área de respuesta
+
+                const isQuestion = /¿|qué|cómo|cuál|dame|recomienda|\?/i.test(prompt);
+                const endpoint = isQuestion ? '/api/ask' : '/api/chat';
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt, projects: Papa.unparse(allProjects) })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Error del servidor: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    console.log('Respuesta del servidor:', data); // Añadir log para depuración
+
+                    if (isQuestion) {
+                        parseAIResponseToCards(data, responseArea);
+                    } else {
+                    const projectIds = data.response.split(',').map(id => id.trim());
+                    
+                    selectedProjects.clear();
+                    projectIds.forEach(id => {
+                        if(allProjects.some(p => p.ID === id)) {
+                            selectedProjects.add(id);
+                        }
+                    });
+                    
+                    responseArea.innerHTML = `<p class="text-success">Simulación completada. Se han seleccionado ${projectIds.length} proyectos según tu criterio.</p>`;
+                        render(); // Re-renderizar la tabla principal para reflejar la selección
+                    }
+                    promptInput.value = '';
+
+                } catch (error) {
+                    console.error('Error con el Agente IA:', error);
+                    responseArea.innerHTML = `<p class="text-danger">Error: No se pudo completar la simulación. ${error.message}</p>`;
+                } finally {
+                    spinner.classList.add('d-none');
+                    submitButton.disabled = false;
+                }
+            }
+
+            init();
+        });
+    </script>
 </body>
 </html>

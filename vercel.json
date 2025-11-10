@@ -7,8 +7,6 @@
       "config": {
         "includeFiles": [
           "index.html",
-          "style.css",
-          "app.js",
           "proyectos_dashboard.csv",
           "favicon.ico"
         ]
