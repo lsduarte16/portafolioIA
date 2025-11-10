@@ -13,9 +13,23 @@ const app = express();
 const port = 3000;
 
 // Middlewares
-app.use(cors()); // Permite peticiones desde el frontend
+app.use(cors({
+    origin: '*', // Permitir cualquier origen
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+})); // Permite peticiones desde el frontend
 app.use(express.json()); // Permite al servidor entender JSON
-app.use(express.static(__dirname)); // Sirve los archivos estáticos (html, css, js)
+app.use(express.static(path.join(__dirname))); // Sirve los archivos estáticos (html, css, js)
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
+// Rutas específicas para archivos estáticos
+app.get('/style.css', (req, res) => {
+    res.sendFile(path.join(__dirname, 'style.css'));
+});
+
+app.get('/app.js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'app.js'));
+});
 
 // Configuración del cliente de Azure OpenAI
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
